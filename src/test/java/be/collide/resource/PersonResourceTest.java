@@ -20,7 +20,6 @@ class PersonResourceTest {
     @Test
     void testCreateAndFindById() {
 
-
         var createPerson = PersonResource.CreatePersonDto.builder().build();
 
         String url = given()

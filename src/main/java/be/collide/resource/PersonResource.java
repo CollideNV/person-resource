@@ -29,15 +29,6 @@ public class PersonResource {
                 .build();
     }
 
-    @Builder
-    @Data
-    public static class PersonDTO {
-        private UUID id;
-        private String firstName;
-        private String name;
-        private LocalDate birthDate;
-    }
-
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -51,6 +42,15 @@ public class PersonResource {
         UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder();
         uriBuilder.path(person.getId().toString());
         return Response.created(uriBuilder.build()).build();
+    }
+
+    @Builder
+    @Data
+    public static class PersonDTO {
+        private UUID id;
+        private String firstName;
+        private String name;
+        private LocalDate birthDate;
     }
 
     @Builder

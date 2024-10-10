@@ -18,9 +18,10 @@
         <quarkus.platform.version>3.15.1</quarkus.platform.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.3.1</surefire-plugin.version>
-        <jacoco.version>0.8.11</jacoco.version>
-        <lombok.version>1.18.30</lombok.version>
-        <assertj-core.version>3.25.2</assertj-core.version>
+        <jacoco.version>0.8.12</jacoco.version>
+        <lombok.version>1.18.34</lombok.version>
+        <assertj-core.version>3.26.3</assertj-core.version>
+        <DynamoDBLocal.version>2.5.2</DynamoDBLocal.version>
     </properties>
 
     <dependencyManagement>
@@ -101,7 +102,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>DynamoDBLocal</artifactId>
-            <version>2.2.1</version>
+            <version>${DynamoDBLocal.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -133,16 +134,16 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <release>17</release>
+                    <release>21</release>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-maven-plugin-jakarta</artifactId>
-                <version>2.2.20</version>
+                <version>2.2.23</version>
                 <configuration>
                     <resourcePackages>
-                        <resourcePackage>be.collide.quizbackoffice.resource</resourcePackage>
+                        <resourcePackage>be.collide.resource</resourcePackage>
                     </resourcePackages>
 
                     <outputPath>${basedir}/target/</outputPath>
