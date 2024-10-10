@@ -1,4 +1,4 @@
-package org.acme;
+package be.collide.resource;
 
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 
