@@ -5,8 +5,10 @@ import be.collide.service.PersonRepository;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -46,6 +48,8 @@ public class PersonResource {
 
     @Builder
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class PersonDTO {
         private UUID id;
         private String firstName;
@@ -55,6 +59,8 @@ public class PersonResource {
 
     @Builder
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class CreatePersonDto {
         private String firstName;
         private String name;
