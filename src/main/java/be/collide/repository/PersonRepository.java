@@ -1,4 +1,4 @@
-package be.collide.service;
+package be.collide.repository;
 
 import be.collide.domain.Person;
 import be.collide.exception.ResourceNotFoundException;
@@ -35,7 +35,7 @@ public class PersonRepository {
                             .build())
             );
         } catch (ResourceInUseException e) {
-            log.debug("Dit not recreate Quiz table as it already exists");
+            log.debug("Dit not recreate Person table as it already exists");
         }
     }
 
@@ -48,6 +48,4 @@ public class PersonRepository {
         return Optional.ofNullable(personTable.getItem(Key.builder().partitionValue(id.toString()).build()))
                 .orElseThrow(() -> new ResourceNotFoundException("Person with id %s not found!".formatted(id)));
     }
-
-
 }

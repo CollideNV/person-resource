@@ -1,7 +1,7 @@
 package be.collide.resource;
 
 import be.collide.domain.Person;
-import be.collide.service.PersonRepository;
+import be.collide.repository.PersonRepository;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
