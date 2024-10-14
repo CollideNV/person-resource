@@ -24,6 +24,8 @@ public class Person {
     private String name;
     private String firstName;
     private LocalDate birthDate;
+    private String linkedInProfile;
+    private String emailAddress;
 
     @DynamoDbPartitionKey
     @DynamoDbConvertedBy(UUIDToStringConverter.class)

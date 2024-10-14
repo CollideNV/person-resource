@@ -3,6 +3,9 @@ package be.collide.resource;
 import be.collide.domain.Person;
 import be.collide.repository.PersonRepository;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import lombok.AllArgsConstructor;
@@ -34,11 +37,13 @@ public class PersonResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response create(CreatePersonDto createPersonDto, @Context UriInfo uriInfo) {
+    public Response create(@Valid UpsertPersonDto upsertPersonDto, @Context UriInfo uriInfo) {
         Person person = personRepository.create(Person.builder()
-                .name(createPersonDto.name)
-                .firstName(createPersonDto.firstName)
-                .birthDate(createPersonDto.birthDate)
+                .name(upsertPersonDto.name)
+                .firstName(upsertPersonDto.firstName)
+                .birthDate(upsertPersonDto.birthDate)
+                .emailAddress(upsertPersonDto.emailAddress)
+                .linkedInProfile(upsertPersonDto.linkedInProfile)
                 .build());
 
         UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder();
@@ -61,9 +66,15 @@ public class PersonResource {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class CreatePersonDto {
+    public static class UpsertPersonDto {
         private String firstName;
         private String name;
         private LocalDate birthDate;
+        @Pattern(regexp = "^https?:\\/\\/(www\\.)?linkedin\\.com\\/in\\/[a-zA-Z0-9-]+\\/?$")
+        private String linkedInProfile;
+        @Email(regexp = ".+@.+\\..+")
+        private String emailAddress;
+
     }
+
 }

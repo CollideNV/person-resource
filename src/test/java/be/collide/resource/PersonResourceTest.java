@@ -22,15 +22,17 @@ class PersonResourceTest {
     @Test
     void testCreateAndFindById() {
 
-        var createPerson = PersonResource.CreatePersonDto.builder()
+        var upsertPersonDto = PersonResource.UpsertPersonDto.builder()
                 .name("Person Last Name")
                 .firstName("Person First name")
-                .birthDate(LocalDate.of(2000,4,14))
+                .birthDate(LocalDate.of(2000, 4, 14))
+                .linkedInProfile("https://www.linkedin.com/in/person-profile/")
+                .emailAddress("test@test.com")
                 .build();
 
         String url = given()
                 .contentType("application/json")
-                .body(createPerson)
+                .body(upsertPersonDto)
                 .when().post("/person")
                 .then().log().all()
                 .statusCode(201)
@@ -44,7 +46,43 @@ class PersonResourceTest {
         assertThat(personDTO.getId()).isNotNull();
         assertThat(personDTO.getName()).isEqualTo("Person Last Name");
         assertThat(personDTO.getFirstName()).isEqualTo("Person First name");
-        assertThat(personDTO.getBirthDate()).isEqualTo(LocalDate.of(2000,4,14));
+        assertThat(personDTO.getBirthDate()).isEqualTo(LocalDate.of(2000, 4, 14));
     }
 
+
+    @Test
+    void testCreatePersonWithIncorrectLinkedInUrl() {
+
+        var upsertPersonDto = PersonResource.UpsertPersonDto.builder()
+                .name("Person Last Name")
+                .firstName("Person First name")
+                .birthDate(LocalDate.of(2000, 4, 14))
+                .linkedInProfile("https://www.linkedin.com/wrong/person-profile/")
+                .emailAddress("test@test.com")
+                .build();
+
+        assertThat(given()
+                .contentType("application/json")
+                .body(upsertPersonDto)
+                .post("/person")
+                .statusCode()).isEqualTo(400);
+    }
+
+    @Test
+    void testCreatePersonWithIncorrectEmailAddress() {
+
+        var upsertPersonDto = PersonResource.UpsertPersonDto.builder()
+                .name("Person Last Name")
+                .firstName("Person First name")
+                .birthDate(LocalDate.of(2000, 4, 14))
+                .linkedInProfile("https://www.linkedin.com/in/person-profile/")
+                .emailAddress("test@test")
+                .build();
+
+        assertThat(given()
+                .contentType("application/json")
+                .body(upsertPersonDto)
+                .post("/person")
+                .statusCode()).isEqualTo(400);
+    }
 }
