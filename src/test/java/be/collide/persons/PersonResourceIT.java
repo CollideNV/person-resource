@@ -1,4 +1,4 @@
-package be.collide.resource;
+package be.collide.persons;
 
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 

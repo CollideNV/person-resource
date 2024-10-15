@@ -1,4 +1,4 @@
-package be.collide.util.converter;
+package be.collide.persons;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import software.amazon.awssdk.enhanced.dynamodb.AttributeConverter;
