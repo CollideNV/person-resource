@@ -11,6 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,14 +27,7 @@ public class PersonResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
     public PersonDTO getPerson(@PathParam("id") UUID id) {
-        var person = persons.get(id);
-        return PersonDTO.builder()
-                .id(person.getId())
-                .name(person.getName())
-                .firstName(person.getFirstName())
-                .birthDate(person.getBirthDate())
-                .employments(person.getEmployments().stream().map(employment -> PersonDTO.EmploymentDto.builder().company(employment.getCompany()).endDate(employment.getEndDate()).startDate(employment.getStartDate()).id(employment.getId()).build()).toList())
-                .build();
+        return PersonMapper.getInstance().toDto(persons.get(id));
     }
 
     @PUT
@@ -49,13 +44,7 @@ public class PersonResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response create(@Valid UpsertPersonDto upsertPersonDto, @Context UriInfo uriInfo) {
-        Person person = persons.create(Person.builder()
-                .name(upsertPersonDto.name)
-                .firstName(upsertPersonDto.firstName)
-                .birthDate(upsertPersonDto.birthDate)
-                .emailAddress(upsertPersonDto.emailAddress)
-                .linkedInProfile(upsertPersonDto.linkedInProfile)
-                .build());
+        Person person = persons.create(PersonMapper.getInstance().toPerson(upsertPersonDto));
 
         UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder();
         uriBuilder.path(person.getId().toString());
@@ -93,7 +82,7 @@ public class PersonResource {
         private String firstName;
         private String name;
         private LocalDate birthDate;
-        @Pattern(regexp = "^https?:\\/\\/(www\\.)?linkedin\\.com\\/in\\/[a-zA-Z0-9-]+\\/?$")
+        @Pattern(regexp = "^https?://(www\\.)?linkedin\\.com/in/[a-zA-Z0-9-]+/?$")
         private String linkedInProfile;
         @Email(regexp = ".+@.+\\..+")
         private String emailAddress;
@@ -114,4 +103,15 @@ public class PersonResource {
         private String company;
     }
 
+    @Mapper
+    public interface PersonMapper {
+
+        static PersonMapper getInstance() {
+            return Mappers.getMapper(PersonMapper.class);
+        }
+
+        PersonDTO toDto(Person person);
+
+        Person toPerson(UpsertPersonDto person);
+    }
 }

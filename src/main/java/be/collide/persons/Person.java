@@ -1,10 +1,15 @@
 package be.collide.persons;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
+import software.amazon.awssdk.enhanced.dynamodb.AttributeConverter;
+import software.amazon.awssdk.enhanced.dynamodb.AttributeValueType;
+import software.amazon.awssdk.enhanced.dynamodb.EnhancedType;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbConvertedBy;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -53,5 +58,28 @@ public class Person {
         private LocalDate startDate;
         private LocalDate endDate;
         private String company;
+    }
+
+    @RegisterForReflection
+    public static class UUIDToStringConverter implements AttributeConverter<UUID> {
+        @Override
+        public AttributeValue transformFrom(UUID input) {
+            return AttributeValue.fromS(input.toString());
+        }
+
+        @Override
+        public UUID transformTo(AttributeValue input) {
+            return UUID.fromString(input.s());
+        }
+
+        @Override
+        public EnhancedType<UUID> type() {
+            return EnhancedType.of(UUID.class);
+        }
+
+        @Override
+        public AttributeValueType attributeValueType() {
+            return AttributeValueType.S;
+        }
     }
 }

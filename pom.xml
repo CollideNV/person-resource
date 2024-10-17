@@ -23,6 +23,7 @@
         <lombok.version>1.18.34</lombok.version>
         <assertj-core.version>3.26.3</assertj-core.version>
         <DynamoDBLocal.version>2.5.2</DynamoDBLocal.version>
+        <mapstruct.version>1.6.2</mapstruct.version>
     </properties>
 
     <dependencyManagement>
@@ -96,6 +97,11 @@
             <artifactId>netty-nio-client</artifactId>
             <!-- use 2.9.1 for Java 7 projects -->
         </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -150,6 +156,11 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
                         </path>
                         <path>
                             <groupId>io.quarkus</groupId>
