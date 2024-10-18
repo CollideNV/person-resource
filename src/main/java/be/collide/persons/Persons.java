@@ -1,10 +1,10 @@
-package be.collide.repository;
+package be.collide.persons;
 
-import be.collide.domain.Person;
-import be.collide.exception.ResourceNotFoundException;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @ApplicationScoped
 @Slf4j
-public class PersonRepository {
+public class Persons {
     private DynamoDbTable<Person> personTable;
 
     @Inject
@@ -47,5 +47,17 @@ public class PersonRepository {
     public Person get(UUID id) {
         return Optional.ofNullable(personTable.getItem(Key.builder().partitionValue(id.toString()).build()))
                 .orElseThrow(() -> new ResourceNotFoundException("Person with id %s not found!".formatted(id)));
+    }
+
+    public void update(Person person) {
+        personTable.putItem(person);
+    }
+
+    @Getter
+    public static class ResourceNotFoundException extends NotFoundException {
+        public ResourceNotFoundException(String message) {
+
+            super(message);
+        }
     }
 }

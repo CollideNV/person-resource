@@ -2,84 +2,40 @@ name: Install Native Lambda
 on:
   push:
     branches: [ "main" ]
-env:
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
 jobs:
-  mvn-verify:
+  build-test:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out the repository
+        uses: actions/checkout@v4.2.1
+
       - name: Set up JDK 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4.4.0
         with:
           java-version: '21'
           distribution: 'adopt'
+
       - name: Build with Maven
-        run: mvn verify
-      - name: Upload openapi.json
-        uses: 'actions/upload-artifact@v3'
+        run: mvn clean install -DskipTests
+
+      - name: Run Tests with Maven
+        run: mvn test
+
+      - name: Upload Swagger Contract
+        uses: 'actions/upload-artifact@v4.4.3'
         with:
-          name: spec-file
+          name: swagger.json
           path: ${{ github.workspace }}/target/swagger.json
+
   deploy-swagger-ui:
-    needs: mvn-verify
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Download swagger.json
-        uses: actions/download-artifact@v3
-        with:
-          name: spec-file
-      - name: Generate Swagger UI
-        uses: Legion2/swagger-ui-action@v1
-        with:
-          output: swagger-ui
-          spec-file: swagger.json
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: swagger-ui
-  build-native:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - uses: graalvm/setup-graalvm@v1
-        with:
-          version: 'latest'
-          java-version: '21'
-          distribution: 'graalvm'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Setup DynamoDB Local
-        uses: rrainn/dynamodb-action@v2.0.1
-        with:
-          port: 8000
-          cors: '*'
-      - name: Build with Maven
-        run: mvn install -Dnative
-      - name: Archive Target Directory
-        uses: actions/upload-artifact@v3
-        with:
-          name: target
-          path: target
-  deploy-to-aws:
-    needs: build-native
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - name: Download Target Directory
-        uses: actions/download-artifact@v3
-        with:
-          name: target
-          path: target
-      - uses: actions/setup-python@v3
-        with:
-          python-version: "3.8"
-      - uses: aws-actions/setup-sam@v2
-      - uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-      - name: Deploy to AWS
-        run: sam deploy -t target/sam.native.yaml --stack-name ${{ secrets.AWS_STACK_NAME }} --region ${{ secrets.AWS_REGION }} --s3-bucket ${{ secrets.AWS_S3_BUCKET }} --s3-prefix=${{ secrets.AWS_S3_PREFIX }} --capabilities ${{ secrets.AWS_CAPABILITIES }}
+    needs: build-test
+    uses: ./.github/workflows/deploy-openapi-contract.yaml
+    with:
+      file-name: swagger.json
+    secrets: inherit
+
+  deploy-lambda:
+    needs: deploy-swagger-ui
+    uses: ./.github/workflows/deploy-native-lambda.yaml
+    secrets: inherit

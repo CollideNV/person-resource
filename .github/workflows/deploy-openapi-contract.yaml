@@ -1,0 +1,34 @@
+name: Deploy Swagger Contract
+run-name: Deploy Swagger Contract
+
+on:
+  workflow_call:
+    inputs:
+      file-name:
+        required: true
+        type: string
+        description: 'Name of the file to be used'
+        default: 'swagger.json'
+
+jobs:
+  deploy-swagger-ui:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Download Swagger Contract
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: ${{ inputs.file-name }}
+          path: ./openapi-contract
+
+      - name: Generate Swagger UI
+        uses: Legion2/swagger-ui-action@v1.3.0
+        with:
+          spec-file: ./openapi-contract/${{ inputs.file-name }}
+          output: swagger-ui
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: swagger-ui
