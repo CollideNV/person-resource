@@ -3,20 +3,28 @@ on:
   pull_request:
     branches:
       - main
+
 jobs:
   build-mvn:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v4.2.1
+      - name: Check out the repository
+        uses: actions/checkout@v4.2.1
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4.4.0
         with:
           java-version: '21'
           distribution: 'adopt'
+
       - name: Build with Maven
-        run: mvn verify
+        run: mvn clean install -DskipTests
+
+      - name: Run Tests with Maven
+        run: mvn test
+
       - name: Upload Report
-        uses: 'actions/upload-artifact@v4.4.3'
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: report.xml
           path: ${{ github.workspace }}/target/jacoco-report/jacoco.xml
