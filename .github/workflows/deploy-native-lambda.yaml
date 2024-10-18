@@ -1,0 +1,35 @@
+name: Deploy Native Lambda
+run-name: Deploy Native Lambda
+
+on:
+  workflow_call:
+
+jobs:
+  deploy-native-lambda:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4.2.1
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4.4.0
+        with:
+          java-version: '21'
+          distribution: 'adopt'
+
+      - name: Build native with Maven
+        run: mvn install -Dnative -DskipTests
+
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to AWS
+        run: sam deploy -t .aws-sam/quarkus.native.yaml --stack-name ${{ secrets.AWS_STACK_NAME }} --region ${{ secrets.AWS_REGION }} --s3-bucket ${{ secrets.AWS_S3_BUCKET }} --capabilities "CAPABILITY_IAM"
